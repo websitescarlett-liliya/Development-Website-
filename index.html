@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevSphere - 180 Bahasa</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#090d16;color:#fff;min-height:100vh}
+#bg-video{position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:-2}
+.video-overlay{position:fixed;inset:0;background:rgba(5,8,15,.65);z-index:-1}
+.glass-panel{background:rgba(255,255,255,.08);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.14);border-radius:16px}
+.auth-gate{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{max-width:380px;width:100%;padding:32px;text-align:center}
+.btn{padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:14px}
+.btn-primary{background:#3b82f6;border:none}
+.btn.small{padding:6px 12px;font-size:12px}
+header{position:fixed;top:0;width:100%;z-index:200;padding:12px}
+nav{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;flex-wrap:wrap;gap:8px}
+.nav-links{display:flex;list-style:none;gap:6px}
+.nav-link{background:transparent;border:none;color:#94a3b8;padding:8px 12px;cursor:pointer;border-radius:8px}
+.nav-link.active,.nav-link:hover{color:#fff;background:rgba(255,255,255,.12)}
+main{max-width:1100px;margin:0 auto;padding:100px 16px 40px;position:relative;z-index:1}
+.page-section{display:none}.page-section.active{display:block}
+.hero{text-align:center;padding:40px 20px;margin-bottom:20px}
+.playground-container{padding:20px}
+.playground-editor{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.code-input,.code-output{min-height:260px;border-radius:10px;padding:12px;font-family:Consolas,monospace;font-size:13px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);width:100%}
+.code-input{color:#7df9ff;resize:vertical}
+.code-output{color:#a7f3d0;white-space:pre-wrap;overflow-y:auto}
+.form-control{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.35);color:#fff;outline:none}
+select.form-control option{color:#000}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
+.modal-content{width:100%;max-width:360px;padding:24px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:65vh;overflow-y:auto;padding:4px}
+.feature-card{padding:14px;text-align:center}
+#file-tabs{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+@media(max-width:800px){.playground-editor{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<video autoplay loop muted playsinline id="bg-video"><source src="https://files.catbox.moe/lj5x8x.mp4" type="video/mp4"></video>
+<div class="video-overlay"></div>
+
+<div id="auth-gate" class="auth-gate">
+<div class="glass-panel auth-box">
+<h2>DEVSPHERE</h2>
+<p style="color:#94a3b8;margin:8px 0">180 Bahasa - Masuk dulu</p>
+<button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="openAuthModal('login')">Masuk</button>
+<button class="btn" style="width:100%;margin-top:8px" onclick="openAuthModal('register')">Daftar</button>
+<button class="btn" style="width:100%;margin-top:8px" onclick="quickGmail()">Masuk dengan Gmail</button>
+<button class="btn" style="width:100%;margin-top:8px" onclick="loginGithub()">Masuk dengan GitHub</button>
+</div>
+</div>
+
+<div id="app" style="display:none">
+<header><nav class="glass-panel">
+<div><b>DEVSPHERE</b></div>
+<ul class="nav-links">
+<li><button class="nav-link active" onclick="switchPage('home-page',this)">Home</button></li>
+<li><button class="nav-link" onclick="switchPage('fitur-page',this)">Fitur</button></li>
+<li><button class="nav-link" onclick="switchPage('setting-page',this)">Setting</button></li>
+</ul>
+<button class="btn small" onclick="logout()">Keluar</button>
+</nav></header>
+<main>
+<section id="home-page" class="page-section active">
+<div class="hero glass-panel"><h1>Playground 180 Bahasa</h1><p style="color:#94a3b8">Bisa tambah bahasa & file sendiri</p></div>
+<div class="playground-container glass-panel">
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+<input id="lang-search" class="form-control" placeholder="Cari bahasa..." oninput="filterLang(this.value)" style="width:130px">
+<select id="language-select" class="form-control" onchange="onLangChange()" style="width:150px"></select>
+<button class="btn btn-primary" onclick="runCode()">Jalankan</button>
+<button class="btn" onclick="addLanguage()" style="background:#10b981;border:none">+ Bahasa</button>
+<button class="btn" onclick="addFile()" style="background:#8b5cf6;border:none">+ File</button>
+</div>
+<div id="file-tabs"></div>
+<div class="playground-editor">
+<textarea id="code-editor" class="code-input" spellcheck="false" oninput="autoSave()"></textarea>
+<div id="code-output" class="code-output">Output...</div>
+</div>
+</div>
+</section>
+<section id="fitur-page" class="page-section"><div class="features-grid" id="feat-grid"></div></section>
+<section id="setting-page" class="page-section"><div class="glass-panel" style="padding:20px"><h3>Setting</h3><br><button class="btn btn-primary" onclick="chatAdmin()">Chat Admin WhatsApp</button> <button class="btn" onclick="resetCustom()">Reset Bahasa Custom</button></div></section>
+</main>
+</div>
+
+<div id="auth-modal" class="modal">
+<div class="modal-content glass-panel">
+<h3 id="auth-title">Masuk</h3><br>
+<input id="auth-email" class="form-control" placeholder="Email" style="width:100%;margin-bottom:10px">
+<input id="auth-pass" type="password" class="form-control" placeholder="Password" style="width:100%;margin-bottom:10px">
+<button class="btn btn-primary" style="width:100%" onclick="submitAuth()">Submit</button>
+<button class="btn" style="width:100%;margin-top:8px" onclick="closeAuthModal()">Batal</button>
+</div>
+</div>
+
+<script>
+var isLoggedIn=false;
+var DEFAULT_LANGS=["Python","JavaScript","TypeScript","Java","C","C++","C#","Go","Rust","Kotlin","Swift","PHP","Ruby","R","MATLAB","SQL","Dart","Scala","Haskell","Lua","Perl","Bash","PowerShell","Objective-C","Assembly","Julia","Elixir","Erlang","Clojure","F#","VB.NET","Groovy","Fortran","COBOL","Ada","Pascal","Delphi","Scheme","Lisp","Prolog","Solidity","Zig","Nim","Crystal","OCaml","VHDL","Verilog","SystemVerilog","HTML","CSS","Racket","Smalltalk","ActionScript","ColdFusion","ABAP","Apex","D","Vala","Elm","PureScript","ReasonML","Idris","Agda","Coq","Forth","APL","J","Tcl","Awk","Sed","Batch","QBasic","Rexx","Eiffel","Io","Factor","Red","Chapel","X10","Ballerina","Hack","Wolfram","Stata","SAS","Octave","Self","Squeak","Oberon","PL/I","Occam","Limbo","Curry","Miranda","Clean","Oz","Common Lisp","Emacs Lisp","AutoLISP","AutoHotkey","AppleScript","Visual FoxPro","dBase","RPG","Icon","SNOBOL","Befunge","Brainfuck","LOLCODE","INTERCAL","Piet","ChucK","SuperCollider","Csound","Processing","HLSL","GLSL","CUDA","OpenCL","Mojo","Carbon","V","Odin","Gleam","Roc","Unison","Futhark","Vim script","Zsh","Fish","Nushell","Nix","Dhall","Jsonnet","HCL","Starlark","Rego","CUE","Yul","Ink!","Michelson","Plutus","Clarity","Sway","Motoko","Pony","Halide","Taichi","ISPC","Move","Cairo","Vyper","Terra","LabVIEW","Scratch","Logo","BASIC","Turbo Pascal","Modula-2","Simula","Algol","PL/SQL","T-SQL","GraphQL","WebAssembly","Datalog","Mercury","Euphoria","Pike","Squirrel","AngelScript","GDScript","Luau","Q#","DM","Nemerle","Boo","Cobra","Xojo","LiveCode","Ring","Bosque"];
+var customLangs=[];
+try{customLangs=JSON.parse(localStorage.getItem('customLangs')||'[]');}catch(e){}
+var LANGUAGES=[...new Set([...DEFAULT_LANGS,...customLangs])];
+var files=[{name:'main.txt',lang:LANGUAGES[0],code:'// '+LANGUAGES[0]+'\n// tulis kode disini'}];
+var activeFile=0;
+
+function initLang(keep){
+ var s=document.getElementById('language-select');
+ var cur=keep? s.value : files[activeFile].lang;
+ s.innerHTML=LANGUAGES.map(l=>`<option ${l===cur?'selected':''}>${l}</option>`).join('');
+}
+function filterLang(q){
+ var s=document.getElementById('language-select');
+ var f=LANGUAGES.filter(l=>l.toLowerCase().includes(q.toLowerCase()));
+ var cur=s.value;
+ s.innerHTML=f.map(l=>`<option ${l===cur?'selected':''}>${l}</option>`).join('');
+}
+function onLangChange(){ files[activeFile].lang=document.getElementById('language-select').value; updateDefaultCode(); }
+function updateDefaultCode(){
+ var l=document.getElementById('language-select').value;
+ if(!files[activeFile].code || files[activeFile].code.startsWith('//')){
+   files[activeFile].code=`// ${l}\n// tulis kode ${l} disini`;
+   document.getElementById('code-editor').value=files[activeFile].code;
+ }
+}
+function autoSave(){ files[activeFile].code=document.getElementById('code-editor').value; }
+function runCode(){
+ autoSave();
+ var l=document.getElementById('language-select').value;
+ document.getElementById('code-output').textContent=`[${l}] [${files[activeFile].name}] Running...\n----------------\n${files[activeFile].code.slice(0,1200)}\n----------------\nDone.`;
+}
+function addLanguage(){
+ var n=prompt('Nama bahasa baru (misal: JSON):');
+ if(!n) return; n=n.trim(); if(!n) return;
+ if(LANGUAGES.includes(n)){alert('Sudah ada');return;}
+ LANGUAGES.push(n); customLangs.push(n);
+ try{localStorage.setItem('customLangs',JSON.stringify(customLangs));}catch(e){}
+ initLang(true); initFeat();
+ alert(n+' ditambahkan!');
+}
+function resetCustom(){ localStorage.removeItem('customLangs'); location.reload(); }
+function addFile(){
+ var n=prompt('Nama file (misal: data.json, style.css, index.html):','file'+(files.length+1)+'.txt');
+ if(!n) return;
+ files[activeFile].code=document.getElementById('code-editor').value;
+ files.push({name:n, lang:document.getElementById('language-select').value, code:'// '+n+'\n'});
+ activeFile=files.length-1;
+ renderFileTabs(); loadActiveFile();
+}
+function renderFileTabs(){
+ var w=document.getElementById('file-tabs');
+ w.innerHTML=files.map((f,i)=>`<button class="btn small" style="${i===activeFile?'background:#3b82f6;border:none':''}" onclick="switchFile(${i})">${f.name}</button>`).join('');
+}
+function switchFile(i){
+ files[activeFile].code=document.getElementById('code-editor').value;
+ files[activeFile].lang=document.getElementById('language-select').value;
+ activeFile=i; loadActiveFile(); renderFileTabs();
+}
+function loadActiveFile(){
+ document.getElementById('code-editor').value=files[activeFile].code;
+ document.getElementById('language-select').value=files[activeFile].lang;
+}
+function switchPage(id,el){
+ if(!isLoggedIn) return;
+ document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+ el.classList.add('active');
+}
+function openAuthModal(t){document.getElementById('auth-title').textContent=t==='login'?'Masuk':'Daftar';document.getElementById('auth-modal').classList.add('active');}
+function closeAuthModal(){document.getElementById('auth-modal').classList.remove('active');}
+function doLogin(e){isLoggedIn=true;document.getElementById('auth-gate').style.display='none';document.getElementById('app').style.display='block';closeAuthModal();initFeat();}
+function submitAuth(){var e=document.getElementById('auth-email').value;if(!e){alert('Isi email');return;}doLogin(e);}
+function quickGmail(){doLogin('user@gmail.com');}
+function loginGithub(){doLogin('github@github.com');}
+function logout(){isLoggedIn=false;document.getElementById('app').style.display='none';document.getElementById('auth-gate').style.display='flex';}
+function chatAdmin(){window.open('https://wa.me/6288801883795?text=Halo%20Admin','_blank');}
+function initFeat(){document.getElementById('feat-grid').innerHTML=LANGUAGES.map(l=>`<div class="feature-card glass-panel"><h4 style="font-size:13px">${l}</h4><p style="font-size:11px;color:#94a3b8">Supported</p></div>`).join('');}
+
+initLang(); renderFileTabs(); loadActiveFile(); initFeat();
+</script>
+</body>
+</html>
